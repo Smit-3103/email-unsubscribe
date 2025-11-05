@@ -52,7 +52,6 @@
     // Get query params
     const params = new URLSearchParams(window.location.search);
     const email = params.get("email");
-    const id = params.get("id");
     const backend = params.get("backend");
 
     const status = document.getElementById("status");
@@ -68,22 +67,18 @@
       button.disabled = true;
       button.textContent = "Processing...";
 
-      const apiUrl = `${backend}/unsubscribe`;
+      // ✅ Pass email as a query param, since backend expects req.query
+      const apiUrl = `${backend}/unsubscribe?email=${encodeURIComponent(email)}`;
 
       try {
-        const res = await fetch(apiUrl, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, id }),
-        });
-
+        const res = await fetch(apiUrl, { method: "GET" });
         if (!res.ok) {
           const errText = await res.text();
           throw new Error(errText);
         }
 
-        status.innerHTML = `<strong>${email}</strong> has been unsubscribed successfully.`;
-        button.style.display = "none";
+        const html = await res.text();
+        document.body.innerHTML = html; // directly replace content with backend response
       } catch (err) {
         console.error("Unsubscribe failed:", err);
         status.innerHTML = "Failed to unsubscribe. Please try again later.";
