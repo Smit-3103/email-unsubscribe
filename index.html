@@ -63,29 +63,34 @@
     }
 
     button.addEventListener("click", async () => {
-      status.innerHTML = `Unsubscribing <strong>${email}</strong>...`;
-      button.disabled = true;
-      button.textContent = "Processing...";
+  status.innerHTML = `Unsubscribing <strong>${email}</strong>...`;
+  button.disabled = true;
+  button.textContent = "Processing...";
 
-      // ✅ Pass email as a query param, since backend expects req.query
-      const apiUrl = `${backend}/unsubscribe?email=${encodeURIComponent(email)}`;
+  const apiUrl = `${backend}/unsubscribe`;
 
-      try {
-        const res = await fetch(apiUrl, { method: "POST" });
-        if (!res.ok) {
-          const errText = await res.text();
-          throw new Error(errText);
-        }
-
-        const html = await res.text();
-        document.body.innerHTML = html; // directly replace content with backend response
-      } catch (err) {
-        console.error("Unsubscribe failed:", err);
-        status.innerHTML = "Failed to unsubscribe. Please try again later.";
-        button.disabled = false;
-        button.textContent = "Unsubscribe";
-      }
+  try {
+    const res = await fetch(apiUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email }), // ✅ send in body
     });
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(errText);
+    }
+
+    const html = await res.text();
+    document.body.innerHTML = html; // show backend's HTML response
+  } catch (err) {
+    console.error("Unsubscribe failed:", err);
+    status.innerHTML = "Failed to unsubscribe. Please try again later.";
+    button.disabled = false;
+    button.textContent = "Unsubscribe";
+  }
+});
+
   </script>
 </body>
 </html>
