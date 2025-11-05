@@ -35,6 +35,8 @@
   <script>
     // Get query params
     const params = new URLSearchParams(window.location.search);
+    console.log("params :",params);
+    
     const email = params.get("email");
     const id = params.get("id");
     const backend = params.get("backend"); // backend base URL
