@@ -17,6 +17,21 @@
       border-radius: 10px;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
       display: inline-block;
+      max-width: 400px;
+    }
+    .btn {
+      background: #e63946;
+      color: #fff;
+      border: none;
+      padding: 12px 25px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 16px;
+      transition: background 0.3s ease;
+      margin-top: 20px;
+    }
+    .btn:hover {
+      background: #d62828;
     }
     .company {
       color: #666;
@@ -28,43 +43,54 @@
 <body>
   <div class="container">
     <h2>Unsubscribe Request</h2>
-    <p id="status">Processing your request...</p>
+    <p id="status">Click below to unsubscribe from future emails.</p>
+    <button id="unsubscribeBtn" class="btn">Unsubscribe</button>
     <p class="company">© 2025 Your Company</p>
   </div>
 
   <script>
     // Get query params
     const params = new URLSearchParams(window.location.search);
-    console.log("params :",params);
-    
     const email = params.get("email");
     const id = params.get("id");
-    const backend = params.get("backend"); // backend base URL
+    const backend = params.get("backend");
 
     const status = document.getElementById("status");
+    const button = document.getElementById("unsubscribeBtn");
 
     if (!email || !backend) {
       status.innerHTML = "<b>Error:</b> Missing parameters in unsubscribe link.";
-    } else {
-      status.innerHTML = `Unsubscribing <strong>${email}</strong>...`;
+      button.style.display = "none";
+    }
 
-      // Construct API URL (assuming POST /unsubscribe)
+    button.addEventListener("click", async () => {
+      status.innerHTML = `Unsubscribing <strong>${email}</strong>...`;
+      button.disabled = true;
+      button.textContent = "Processing...";
+
       const apiUrl = `${backend}/unsubscribe`;
 
-      fetch(apiUrl, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, id }),
-      })
-      .then(async (res) => {
-        if (!res.ok) throw new Error(await res.text());
+      try {
+        const res = await fetch(apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, id }),
+        });
+
+        if (!res.ok) {
+          const errText = await res.text();
+          throw new Error(errText);
+        }
+
         status.innerHTML = `<strong>${email}</strong> has been unsubscribed successfully.`;
-      })
-      .catch((err) => {
+        button.style.display = "none";
+      } catch (err) {
         console.error("Unsubscribe failed:", err);
         status.innerHTML = "Failed to unsubscribe. Please try again later.";
-      });
-    }
+        button.disabled = false;
+        button.textContent = "Unsubscribe";
+      }
+    });
   </script>
 </body>
 </html>
