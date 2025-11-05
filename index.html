@@ -71,7 +71,7 @@
       const apiUrl = `${backend}/unsubscribe?email=${encodeURIComponent(email)}`;
 
       try {
-        const res = await fetch(apiUrl, { method: "GET" });
+        const res = await fetch(apiUrl, { method: "POST" });
         if (!res.ok) {
           const errText = await res.text();
           throw new Error(errText);
