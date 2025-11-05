@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Unsubscribe | Your Company</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f9f9f9;
+      text-align: center;
+      margin-top: 100px;
+    }
+    .container {
+      background: #fff;
+      padding: 40px;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      display: inline-block;
+    }
+    .company {
+      color: #666;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Unsubscribe Request</h2>
+    <p id="status">Processing your request...</p>
+    <p class="company">© 2025 Your Company</p>
+  </div>
+
+  <script>
+    // Get query params
+    const params = new URLSearchParams(window.location.search);
+    const email = params.get("email");
+    const id = params.get("id");
+    const backend = params.get("backend"); // backend base URL
+
+    const status = document.getElementById("status");
+
+    if (!email || !backend) {
+      status.innerHTML = "<b>Error:</b> Missing parameters in unsubscribe link.";
+    } else {
+      status.innerHTML = `Unsubscribing <strong>${email}</strong>...`;
+
+      // Construct API URL (assuming POST /unsubscribe)
+      const apiUrl = `${backend}/unsubscribe`;
+
+      fetch(apiUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, id }),
+      })
+      .then(async (res) => {
+        if (!res.ok) throw new Error(await res.text());
+        status.innerHTML = `<strong>${email}</strong> has been unsubscribed successfully.`;
+      })
+      .catch((err) => {
+        console.error("Unsubscribe failed:", err);
+        status.innerHTML = "Failed to unsubscribe. Please try again later.";
+      });
+    }
+  </script>
+</body>
+</html>
